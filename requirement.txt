@@ -1,0 +1,4 @@
+pipenv
+python-dotenv
+spotipy
+pandas
