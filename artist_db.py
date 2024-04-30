@@ -1,4 +1,5 @@
 """
+Model part of MVC design pattern
 Module for artist discography database and spotipy library
 """
 import numpy as np
@@ -35,7 +36,6 @@ class  Artist_db():
         self._track = pd.read_csv(track_csv_file_name)
 
         self.__set_up_data(artist_csv_filename, album_csv_file_name, track_csv_file_name)
-
 
     def __set_up_data(self, artist_file_name, album_file_name, track_file_name):
         """
