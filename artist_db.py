@@ -8,7 +8,6 @@ import dotenv
 import pandas as pd
 from datetime import date
 
-
 class  Artist_db():
     """
     Class for working with artist discography data csv file by utilizing pandas dataframe and spotipy library
@@ -139,7 +138,15 @@ class  Artist_db():
             copy=True
         )
 
+    def search(self, query):
 
+        result = self._sp.search(
+            query,
+            limit=20,
+            type='artist'
+        )['artists']['items']
+
+        return [(artist['name'], artist['genres']) for artist in result]
 
 
 

@@ -1,6 +1,8 @@
 import dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from gui import GUI
+from controller import Controller
 from artist_db import Artist_db
 
 dotenv.load_dotenv()
@@ -13,3 +15,10 @@ sp = Artist_db(
     'csv/album.csv',
     'csv/track.csv'
 )
+ui = GUI()
+
+controller = Controller(ui, sp)
+
+ui.set_controller(controller)
+
+ui.run()
