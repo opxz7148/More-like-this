@@ -17,5 +17,23 @@ class GUI(tk.Tk):
         pass
 
 
-class ArtistInfo:
+class Searching(tk.Frame):
+    """Class contain component relate to searching"""
     pass
+
+
+class Dicrography(tk.Frame):
+    """Class contain component relate to discography list"""
+    pass
+
+
+class ArtistInfo(tk.Frame):
+    """Class contain component relate to artist information"""
+    pass
+
+
+class DataStoryTelling(tk.Frame):
+    """Class contain component relate to data storytelling"""
+    pass
+
+
