@@ -2,6 +2,9 @@
 Controller part of design pattern
 """
 from artist_db import ArtistDb
+from PIL import ImageTk, Image
+import urllib.request
+import io
 
 class Controller:
     """
@@ -12,6 +15,7 @@ class Controller:
         self.ui = ui
         self.model = model
         self.selected_artist = None
+        self.showing_image = None
 
     def search(self, query):
 
@@ -36,3 +40,27 @@ class Controller:
         """
 
         self.selected_artist = self.model.get_selected_artist(artist_id)
+
+        self.show_info()
+
+    def show_info(self):
+        """
+        Show artist information
+        :return:
+        """
+
+        self.showing_image = self.get_img(self.selected_artist.img_url)
+
+        self.ui.info.pic['image'] = self.showing_image
+
+    def get_img(self, url):
+
+        with urllib.request.urlopen(url) as u:
+            raw_data = u.read()
+
+        image = Image.open(io.BytesIO(raw_data))
+        image = image.resize((300, 300))
+        photo = ImageTk.PhotoImage(image)
+
+        return photo
+

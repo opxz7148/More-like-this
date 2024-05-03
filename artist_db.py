@@ -171,39 +171,51 @@ class ArtistDb:
 
     def __add_album(self, album_list):
 
-        all_album = self._sp.albums(album_list)['albums']
+        len(album_list)
 
-        track_list = []
+        def add_album(album_id_list):
 
-        for album_detail in all_album:
+            all_album = self._sp.albums(album_id_list)['albums']
 
-            try:
-                img_url = album_detail['images'][0]['url']
-            except IndexError:
-                img_url = None
+            track_list = []
 
-            release_date = np.datetime64(album_detail['release_date'], "D")
+            for album_detail in all_album:
 
-            self._album.loc[len(self._album)] = {
-                'artist_id': album_detail['artists'][0]['id'],
-                'external_url': album_detail['external_urls']['spotify'],
-                'img_url': img_url,
-                'album_name': album_detail['name'],
-                'album_id': album_detail['id'],
-                'release_date': release_date,
-                'release_date_precision': 'day',
-                'total_tracks': album_detail['total_tracks'],
-                'type': album_detail['type'],
-                'popularity': album_detail['popularity']
-            }
+                try:
+                    img_url = album_detail['images'][0]['url']
+                except IndexError:
+                    img_url = None
 
-            track_list += [track['id'] for track in album_detail['tracks']['items']]
+                release_date = np.datetime64(album_detail['release_date'], "D")
 
-        self.__add_track(track_list)
+                self._album.loc[len(self._album)] = {
+                    'artist_id': album_detail['artists'][0]['id'],
+                    'external_url': album_detail['external_urls']['spotify'],
+                    'img_url': img_url,
+                    'album_name': album_detail['name'],
+                    'album_id': album_detail['id'],
+                    'release_date': release_date,
+                    'release_date_precision': 'day',
+                    'total_tracks': album_detail['total_tracks'],
+                    'type': album_detail['type'],
+                    'popularity': album_detail['popularity']
+                }
+
+                track_list += [track['id'] for track in album_detail['tracks']['items']]
+
+            self.__add_track(track_list)
+
+        album_id = album_list
+
+        limit = 20
+
+        while len(album_id) > limit:
+            add_album(album_id[0:limit])
+            album_id = album_id[limit:]
+
+        add_album(album_id)
 
     def __add_track(self, track_list):
-
-        print(track_list)
 
         def add_track(track_id_list):
 

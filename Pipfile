@@ -8,6 +8,7 @@ spotipy = "*"
 pandas = "*"
 python-dotenv = "*"
 matplotlib = "*"
+pillow = "*"
 
 [dev-packages]
 

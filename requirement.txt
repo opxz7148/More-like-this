@@ -2,3 +2,5 @@ pipenv
 python-dotenv
 spotipy
 pandas
+pillow
+urllib
