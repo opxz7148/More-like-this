@@ -161,8 +161,12 @@ class ArtistDb:
             'img_url': img_url,
             'external_url': artist_detail['external_urls']['spotify'],
         }
-        artist_album = self._sp.artist_albums(artist_id, album_type=('album', 'single'))['items']
+        artist_album = self._sp.artist_albums(artist_id, album_type='album')['items']
         album_list = [album['id'] for album in artist_album]
+
+        artist_single = self._sp.artist_albums(artist_id, album_type='single')['items']
+        album_list += [album['id'] for album in artist_single]
+
         self.__add_album(album_list)
 
     def __add_album(self, album_list):
@@ -232,10 +236,21 @@ class ArtistDb:
         self._album.to_csv('csv/album.csv', index=False)
         self._track.to_csv('csv/track.csv', index=False)
 
+    def get_selected_artist(self, artist_id):
+
+        if artist_id not in self._artist['artist_id'].values:
+            self.add_artist(artist_id)
+
+        artist_df = self._artist.loc[self._artist.artist_id == artist_id]
+        album_df = self._album.loc[self._album.artist_id == artist_id]
+        track_df = self._track.loc[self._track.artist_id == artist_id]
+
+        return SelectedArtist(artist_df, album_df, track_df)
+
 
 class SelectedArtist:
     """
-    Class contain neccessary method and attribute for displaying selected artist detail
+    Class contain necessary method and attribute for displaying selected artist detail
     """
 
     def __init__(
@@ -250,3 +265,12 @@ class SelectedArtist:
         :param track: Dataframe contain all track made by selected artist
         """
 
+        self.artist_name = artist.iloc[0, 0]
+        self.id = artist.iloc[0, 1]
+        self.genres = artist.iloc[0, 2]
+        self.no_follow = artist.iloc[0, 3]
+        self.popularity = artist.iloc[0, 4]
+        self.img_url = artist.iloc[0, 5]
+
+        self.album = album
+        self.track = track
