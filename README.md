@@ -22,7 +22,14 @@ Obtain Spotify API client ID and client secret from [This link](https://develope
 by follow instruction 1-3 in [This link](https://stevesie.com/docs/pages/spotify-client-id-secret-developer-api) 
 
 ### Set API keys
-Paste spotify client ID and client secret to [.env](.env) file
+
+Create a file call .env by run `echo .env`
+
+Paste this message into [.env](.env) file
+```
+SPOTIPY_CLIENT_ID="*Your client id*"
+SPOTIPY_CLIENT_SECRET="*Youe client secret key*"
+```
 
 ## How to run program
 Run `python main.py`
