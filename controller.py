@@ -5,6 +5,7 @@ from artist_db import ArtistDb
 from PIL import ImageTk, Image
 import urllib.request
 import io
+import numpy as np
 
 class Controller:
     """
@@ -90,7 +91,48 @@ class Controller:
         return photo
 
     def show_data_analyze(self):
-        pass
+
+        if not self.selected_artist:
+            return
+
+        self.ui.data.ax1.cla()
+        self.ui.data.ax2.cla()
+
+
+        self.histogram()
+        self.scatter()
+        self.ui.data.canvas.draw()
+
+    def histogram(self):
+
+        track_pop = self.selected_artist.track['popularity']
+
+        ax = self.ui.data.ax1
+        ax.hist(
+            track_pop,
+            range=(0, 100),
+        )
+
+        ax.set_title(f"{self.selected_artist.artist_name}'s tracks popularity distribution")
+        ax.set_ylabel('Frequency')
+        ax.set_title('Popularity(1 - 100)')
+
+    def scatter(self):
+
+        track_pop = self.selected_artist.track['popularity']
+        track_duration = self.selected_artist.track['duration_ms']
+
+        ax = self.ui.data.ax2
+        ax.scatter(
+            x=track_pop,
+            y=track_duration/1000
+        )
+
+        ax.set_title(f"{self.selected_artist.artist_name}'s tracks popularity and duration correlation")
+        ax.set_ylabel('Track duration (second)')
+        ax.set_title('Popularity(1 - 100)')
+
+
 
 
 

@@ -62,6 +62,8 @@ class GUI(tk.Tk):
         self.data.grid(row=0, column=2, sticky='news', rowspan=3)
         self.grid_columnconfigure(2, weight=1)
 
+        self.data.button.bind('<Button-1>', self.show_analyze)
+
     def show_progress(self):
         self.progress.grid(row=2, column=0, columnspan=2, sticky='news')
         self.rowconfigure(2, weight=1)
@@ -100,6 +102,8 @@ class GUI(tk.Tk):
 
         thread_check(thread, self.progress)
 
+    def show_analyze(self, *args):
+        self.controller.show_data_analyze()
 
     def run(self):
         self.mainloop()
@@ -245,6 +249,7 @@ class DataStoryTelling(tk.Frame):
             text='Start'
         )
         self.canvas = None
+        self.canvas_widget = None
         self.ax1 = None
         self.ax2 = None
         self.ax3 = None
@@ -280,9 +285,11 @@ class DataStoryTelling(tk.Frame):
         self.ax3 = fig.add_subplot(223)
         self.ax3 = fig.add_subplot(224)
 
-        canvas = FigureCanvasTkAgg(fig, master=self)
-        self.canvas = canvas.get_tk_widget()
-        self.canvas.grid(column=0, row=2, columnspan=4, sticky="news")
+        fig.tight_layout(pad=2.0)
+
+        self.canvas = FigureCanvasTkAgg(fig, master=self)
+        self.canvas_widget = self.canvas.get_tk_widget()
+        self.canvas_widget.grid(column=0, row=2, columnspan=4, sticky="news")
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
