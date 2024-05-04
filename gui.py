@@ -285,7 +285,7 @@ class DataStoryTelling(tk.Frame):
         self.ax3 = fig.add_subplot(223)
         self.ax3 = fig.add_subplot(224)
 
-        fig.tight_layout(pad=2.0)
+        fig.tight_layout(pad=3.0)
 
         self.canvas = FigureCanvasTkAgg(fig, master=self)
         self.canvas_widget = self.canvas.get_tk_widget()

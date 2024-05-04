@@ -113,9 +113,9 @@ class Controller:
             range=(0, 100),
         )
 
-        ax.set_title(f"{self.selected_artist.artist_name}'s tracks popularity distribution")
+        ax.set_title("tracks popularity distribution")
         ax.set_ylabel('Frequency')
-        ax.set_title('Popularity(1 - 100)')
+        ax.set_xlabel('Popularity(1 - 100)')
 
     def scatter(self):
 
@@ -128,9 +128,9 @@ class Controller:
             y=track_duration/1000
         )
 
-        ax.set_title(f"{self.selected_artist.artist_name}'s tracks popularity and duration correlation")
+        ax.set_title("tracks popularity and\nduration correlation")
         ax.set_ylabel('Track duration (second)')
-        ax.set_title('Popularity(1 - 100)')
+        ax.set_xlabel('Popularity(1 - 100)')
 
 
 
