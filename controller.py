@@ -15,7 +15,12 @@ class Controller:
         self.ui = ui
         self.model = model
         self.selected_artist = None
-        self.showing_image = None
+        self.blank_img = ImageTk.PhotoImage(
+            Image.open('pic/blank-profile-picture-973460_960_720.webp').resize((300, 300))
+        )
+        self.showing_image = self.blank_img
+
+        self.ui.info.pic['image'] = self.showing_image
 
     def search(self, query):
 
@@ -39,9 +44,13 @@ class Controller:
         :param arist_id: spotify artist id
         """
 
+        self.ui.search.disable_detail_button()
+
         self.selected_artist = self.model.get_selected_artist(artist_id)
 
         self.show_info()
+
+        self.ui.search.enable_detail_button()
 
     def show_info(self):
         """
@@ -49,11 +58,27 @@ class Controller:
         :return:
         """
 
-        self.showing_image = self.get_img(self.selected_artist.img_url)
+        try:
+            self.showing_image = self.get_img(self.selected_artist.img_url)
+        except ValueError:
+            self.showing_image = self.blank_img
 
         self.ui.info.pic['image'] = self.showing_image
+        self.ui.info.name['text'] = self.selected_artist.artist_name
+        self.ui.info.follower['text'] = f"Followers: {self.selected_artist.no_follow}"
+
+        print(type(self.selected_artist.genres))
 
     def get_img(self, url):
+
+        """
+        Get image from url
+        :param url: Image url
+        :return ImakeTk from url:
+        """
+
+        if not url:
+            raise ValueError
 
         with urllib.request.urlopen(url) as u:
             raw_data = u.read()
@@ -63,4 +88,9 @@ class Controller:
         photo = ImageTk.PhotoImage(image)
 
         return photo
+
+    def show_data_analyze(self):
+        pass
+
+
 

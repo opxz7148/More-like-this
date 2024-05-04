@@ -4,9 +4,7 @@ Module for artist discography database and spotipy library
 """
 import numpy as np
 import spotipy
-import dotenv
 import pandas as pd
-from datetime import date
 
 
 class ArtistDb:
@@ -64,7 +62,7 @@ class ArtistDb:
         # Set datatype for each column
         self._artist = self._artist.astype(
             {
-                'followers': 'int16',
+                'followers': 'int64',
                 'popularity': 'int8',
             },
             copy=True
@@ -174,6 +172,9 @@ class ArtistDb:
         len(album_list)
 
         def add_album(album_id_list):
+
+            if not album_id_list:
+                return
 
             all_album = self._sp.albums(album_id_list)['albums']
 
@@ -286,3 +287,5 @@ class SelectedArtist:
 
         self.album = album
         self.track = track
+
+        print(artist.values)

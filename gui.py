@@ -2,10 +2,15 @@
 View part of MVC design pattern
 Take responsibility about rendering GUI
 """
-
+import time
 import tkinter as tk
 from tkinter import ttk
 from controller import Controller
+from threading import Thread
+import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 class GUI(tk.Tk):
     """Main GUI class"""
@@ -18,6 +23,11 @@ class GUI(tk.Tk):
         self.info = ArtistInfo(self)
         self.data = DataStoryTelling(self)
         self.disco = Dicography(self)
+        self.progress = ttk.Progressbar(
+            self,
+            orient='horizontal',
+            mode='indeterminate',
+        )
 
         self.init_component()
 
@@ -31,7 +41,7 @@ class GUI(tk.Tk):
         # ========================================================================================
         self.search.grid(row=0, column=0, sticky='news')
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=20)
 
         self.search.search_button.bind('<Button-1>', self.search_handler)
         self.search.detail_button.bind('<Button-1>', self.artist_selected)
@@ -40,7 +50,7 @@ class GUI(tk.Tk):
         # Discography section arrange
         # ========================================================================================
         self.disco.grid(row=1, column=0, sticky='news')
-        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(1, weight=20)
 
         # info section arrange
         # ========================================================================================
@@ -49,23 +59,47 @@ class GUI(tk.Tk):
 
         # Data story telling section arrange
         # ========================================================================================
-        # self.data.grid(row=0, column=2, sticky='news')
-        # self.grid_columnconfigure(2, weight=1)
+        self.data.grid(row=0, column=2, sticky='news', rowspan=3)
+        self.grid_columnconfigure(2, weight=1)
 
+    def show_progress(self):
+        self.progress.grid(row=2, column=0, columnspan=2, sticky='news')
+        self.rowconfigure(2, weight=1)
+        self.progress.start(10)
 
-
+    def finish_progress(self):
+        self.progress.grid_forget()
+        self.progress.stop()
 
     def search_handler(self, *args):
         self.controller.search(self.search.query.get())
 
     def artist_selected(self, *args):
 
+        def thread_check(running_thread: Thread, progress_bar: ttk.Progressbar):
+
+            if thread.is_alive():
+                self.after(10, lambda: thread_check(thread, progress_bar))
+            else:
+                self.progress.configure(value=100)
+                self.finish_progress()
+
         result_tree = self.search.result
 
-        selected_artist = result_tree.item(result_tree.selection()[0])['values']
+        try:
+            selected_artist = result_tree.item(result_tree.selection()[0])['values']
+        except IndexError:
+            return
+
+        self.show_progress()
 
         print(selected_artist)
-        self.controller.select_artist(selected_artist[2])
+
+        thread = Thread(target=lambda: self.controller.select_artist(selected_artist[2]))
+        thread.start()
+
+        thread_check(thread, self.progress)
+
 
     def run(self):
         self.mainloop()
@@ -101,8 +135,6 @@ class Searching(tk.Frame):
 
     def init_component(self):
         """Arrange component"""
-
-        self['background'] = 'red'
 
         self.entry.grid(row=0, column=0, columnspan=2, sticky='news')
 
@@ -208,15 +240,55 @@ class DataStoryTelling(tk.Frame):
     def __init__(self, root):
         super().__init__(root)
 
+        self.button = tk.Button(
+            self,
+            text='Start'
+        )
+        self.canvas = None
+        self.ax1 = None
+        self.ax2 = None
+        self.ax3 = None
+        self.ax4 = None
+        self.mean = tk.Label(self, text='Mean: ', anchor=tk.W)
+        self.sd = tk.Label(self, text='Standard Deviation: ', anchor=tk.W)
+        self.median = tk.Label(self, text='Median: ', anchor=tk.W)
+        self.corr = tk.Label(self, text='Correlation with duration: ', anchor=tk.W)
+
         self.init_component()
 
     def init_component(self):
 
-        self['background'] = 'red'
+        self.configure(background='red')
 
-        label = tk.Label(self, text='DATA')
-        label.grid(row=0, column=0, sticky='news')
+        label = tk.Label(self, text='Artist popularity analytic: ')
+        label.grid(row=0, column=0, sticky='news', columnspan=3)
+
+        self.button.grid(row=0, column=3, sticky='news')
+
+        self.rowconfigure(0, weight=5)
+
+        self.mean.grid(row=1, column=0, sticky="news")
+        self.median.grid(row=1, column=1, sticky="news")
+        self.sd.grid(row=1, column=2, sticky="news")
+        self.corr.grid(row=1, column=3, sticky="news")
+
+        self.rowconfigure(1, weight=5)
+
+        fig = Figure()
+        self.ax1 = fig.add_subplot(221)
+        self.ax2 = fig.add_subplot(222)
+        self.ax3 = fig.add_subplot(223)
+        self.ax3 = fig.add_subplot(224)
+
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        self.canvas = canvas.get_tk_widget()
+        self.canvas.grid(column=0, row=2, columnspan=4, sticky="news")
 
         self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
+
+        self.rowconfigure(2, weight=20)
+
 
