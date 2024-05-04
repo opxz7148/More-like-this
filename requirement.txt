@@ -2,5 +2,4 @@ python-dotenv
 spotipy
 pandas
 pillow
-urllib
 matplotlib

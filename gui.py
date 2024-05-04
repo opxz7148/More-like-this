@@ -12,6 +12,7 @@ matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
+
 class GUI(tk.Tk):
     """Main GUI class"""
 
@@ -208,6 +209,7 @@ class ArtistInfo(tk.Frame):
         self.genre.grid(row=3, column=0, sticky='news')
         self.genre['background'] = bg_color
 
+        # TODO implement related artist recommendation
         self.similar.grid(row=4, column=0, sticky='news')
         self.similar['displaycolumns'] = ['artist', 'genre']
         self.similar.heading('artist', text='Artist')
@@ -224,6 +226,7 @@ class ArtistInfo(tk.Frame):
 
 class Dicography(tk.Frame):
     """Class contain component relate to discography list"""
+    #TODO
     def __init__(self, root):
         super().__init__(root)
 
