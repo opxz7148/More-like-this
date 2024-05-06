@@ -260,6 +260,13 @@ class ArtistDb:
 
         return SelectedArtist(artist_df, album_df, track_df)
 
+    def get_top_tracks(self, artist_id):
+
+        try:
+            return self._sp.artist_top_tracks(artist_id)['tracks']
+        except spotipy.SpotifyException:
+            return None
+
 
 class SelectedArtist:
     """

@@ -63,8 +63,6 @@ class GUI(tk.Tk):
         self.data.grid(row=0, column=2, sticky='news', rowspan=3)
         self.grid_columnconfigure(2, weight=1)
 
-        self.data.button.bind('<Button-1>', self.show_analyze)
-
     def show_progress(self):
         self.progress.grid(row=2, column=0, columnspan=2, sticky='news')
         self.rowconfigure(2, weight=1)
@@ -75,17 +73,20 @@ class GUI(tk.Tk):
         self.progress.stop()
 
     def search_handler(self, *args):
+        print('Search press')
         self.controller.search(self.search.query.get())
 
     def artist_selected(self, *args):
 
+        print('Selected')
+
         def thread_check(running_thread: Thread, progress_bar: ttk.Progressbar):
 
-            if thread.is_alive():
+            if running_thread.is_alive():
                 self.after(10, lambda: thread_check(thread, progress_bar))
             else:
-                self.progress.configure(value=100)
                 self.finish_progress()
+                self.controller.show_data_analyze()
 
         result_tree = self.search.result
 
@@ -104,6 +105,7 @@ class GUI(tk.Tk):
         thread_check(thread, self.progress)
 
     def show_analyze(self, *args):
+        print('Show analyze')
         self.controller.show_data_analyze()
 
     def run(self):
@@ -246,11 +248,6 @@ class DataStoryTelling(tk.Frame):
     """Class contain component relate to data storytelling"""
     def __init__(self, root):
         super().__init__(root)
-
-        self.button = tk.Button(
-            self,
-            text='Start'
-        )
         self.canvas = None
         self.canvas_widget = None
         self.ax1 = None
@@ -269,9 +266,7 @@ class DataStoryTelling(tk.Frame):
         self.configure(background='red')
 
         label = tk.Label(self, text='Artist popularity analytic: ')
-        label.grid(row=0, column=0, sticky='news', columnspan=3)
-
-        self.button.grid(row=0, column=3, sticky='news')
+        label.grid(row=0, column=0, sticky='news', columnspan=4)
 
         self.rowconfigure(0, weight=5)
 
@@ -286,7 +281,7 @@ class DataStoryTelling(tk.Frame):
         self.ax1 = fig.add_subplot(221)
         self.ax2 = fig.add_subplot(222)
         self.ax3 = fig.add_subplot(223)
-        self.ax3 = fig.add_subplot(224)
+        self.ax4 = fig.add_subplot(224)
 
         fig.tight_layout(pad=3.0)
 

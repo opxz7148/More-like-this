@@ -1,6 +1,8 @@
 """
 Controller part of design pattern
 """
+import pandas as pd
+
 from artist_db import ArtistDb
 from PIL import ImageTk, Image
 import urllib.request
@@ -92,15 +94,17 @@ class Controller:
 
     def show_data_analyze(self):
 
+        print('show data')
+
         if not self.selected_artist:
             return
 
-        self.ui.data.ax1.cla()
-        self.ui.data.ax2.cla()
-
+        self.clear_graph()
 
         self.histogram()
         self.scatter()
+        self.bar_graph()
+        self.pie_chart()
         self.ui.data.canvas.draw()
 
     def histogram(self):
@@ -132,6 +136,34 @@ class Controller:
         ax.set_ylabel('Track duration (second)')
         ax.set_xlabel('Popularity(1 - 100)')
 
+    def bar_graph(self):
+        release_date_sorted = self.selected_artist.album.sort_values('release_date')
+
+        ax = self.ui.data.ax3
+        ax.bar(
+            x=release_date_sorted['album_name'],
+            height=release_date_sorted['popularity']
+        )
+        ax.tick_params(axis='x', labelrotation=90)
+
+    def pie_chart(self):
+        # top_tracks = self.model.get_top_tracks(self.selected_artist.id)
+        # top_tracks_album = pd.DataFrame([track['album'] for track in top_tracks])['id']
+        #
+        # print(top_tracks_album['id'])
+        # print(self.selected_artist.album)
+        #
+        # album = self.selected_artist.album.assign(
+        #     top_track_count=lambda x: top_tracks_album.loc[top_tracks_album.id == x.album_id].count().values
+        # )
+        #
+        # print(album)
+
+    def clear_graph(self):
+        self.ui.data.ax1.cla()
+        self.ui.data.ax2.cla()
+        self.ui.data.ax3.cla()
+        self.ui.data.ax4.cla()
 
 
 
