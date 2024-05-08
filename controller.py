@@ -9,6 +9,7 @@ import urllib.request
 import io
 import numpy as np
 
+
 class Controller:
     """
     Class responsible for controlling gui
@@ -44,7 +45,7 @@ class Controller:
     def select_artist(self, artist_id):
         """
         Handle selected artist
-        :param arist_id: spotify artist id
+        :param artist_id: spotify artist id
         """
 
         self.ui.search.disable_detail_button()
@@ -147,6 +148,7 @@ class Controller:
         ax.tick_params(axis='x', labelrotation=90)
 
     def pie_chart(self):
+        pass
         # top_tracks = self.model.get_top_tracks(self.selected_artist.id)
         # top_tracks_album = pd.DataFrame([track['album'] for track in top_tracks])['id']
         #
