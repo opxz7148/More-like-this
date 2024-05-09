@@ -55,13 +55,13 @@ class GUI(tk.Tk):
 
         # info section arrange
         # ========================================================================================
-        self.info.grid(row=0, column=1, sticky='news', rowspan=2)
+        self.info.grid(row=0, column=1, rowspan=2, sticky='news')
         self.grid_columnconfigure(1, weight=1)
 
         # Data story telling section arrange
         # ========================================================================================
-        self.data.grid(row=0, column=2, sticky='news', rowspan=3)
-        self.grid_columnconfigure(2, weight=1)
+        self.data.grid(row=0, column=2, rowspan=3, sticky='news')
+        self.grid_columnconfigure(2, weight=2)
 
     def show_progress(self):
         self.progress.grid(row=2, column=0, columnspan=2, sticky='news')
@@ -153,7 +153,12 @@ class Searching(tk.Frame):
         self.result.grid(row=1, column=0, columnspan=4, sticky='news')
         self.result['displaycolumns'] = ['name', 'genre']
         self.result.heading('name', text='Name')
+        self.result.column('name', stretch=False)
         self.result.heading('genre', text='Genres')
+        self.result.column('genre', stretch=False)
+
+        # self.result.column('name')
+        # self.result.column('genre')
         self.result.bind('<<TreeviewSelect>>', self.enable_detail_button)
 
         self.rowconfigure(0, weight=1)
@@ -188,7 +193,7 @@ class ArtistInfo(tk.Frame):
         self.similar = ttk.Treeview(
             self,
             columns=('artist', 'genre', 'id'),
-            show='headings'
+            show='headings',
         )
 
         self.init_component()
@@ -212,10 +217,12 @@ class ArtistInfo(tk.Frame):
         self.genre['background'] = bg_color
 
         # TODO implement related artist recommendation
-        self.similar.grid(row=4, column=0, sticky='news')
+        self.similar.grid(row=4, column=0, sticky='ns')
         self.similar['displaycolumns'] = ['artist', 'genre']
         self.similar.heading('artist', text='Artist')
+        self.similar.column('artist', stretch=False)
         self.similar.heading('genre', text='Genre')
+        self.similar.column('genre', stretch=False)
 
         self.columnconfigure(0, weight=1)
 
@@ -283,7 +290,7 @@ class DataStoryTelling(tk.Frame):
         self.ax3 = fig.add_subplot(223)
         self.ax4 = fig.add_subplot(224)
 
-        fig.tight_layout(pad=3.0)
+        fig.tight_layout(pad=4.0)
 
         self.canvas = FigureCanvasTkAgg(fig, master=self)
         self.canvas_widget = self.canvas.get_tk_widget()

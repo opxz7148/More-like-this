@@ -133,7 +133,8 @@ class ArtistDb:
         result = self._sp.search(
             query,
             limit=20,
-            type='artist'
+            type='artist',
+            market='TH'
         )['artists']['items']
 
         return [(artist['name'], artist['genres'], artist['id']) for artist in result]
@@ -176,7 +177,7 @@ class ArtistDb:
             if not album_id_list:
                 return
 
-            all_album = self._sp.albums(album_id_list)['albums']
+            all_album = self._sp.albums(album_id_list, market='TH')['albums']
 
             track_list = []
 
@@ -220,7 +221,7 @@ class ArtistDb:
 
         def add_track(track_id_list):
 
-            all_track = self._sp.tracks(track_id_list)['tracks']
+            all_track = self._sp.tracks(track_id_list, market='TH')['tracks']
 
             for track_detail in all_track:
 
@@ -263,7 +264,7 @@ class ArtistDb:
     def get_top_tracks(self, artist_id):
 
         try:
-            return self._sp.artist_top_tracks(artist_id)['tracks']
+            return self._sp.artist_top_tracks(artist_id, country='TH')['tracks']
         except spotipy.SpotifyException:
             return None
 

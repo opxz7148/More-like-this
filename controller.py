@@ -148,18 +148,38 @@ class Controller:
         ax.tick_params(axis='x', labelrotation=90)
 
     def pie_chart(self):
-        pass
-        # top_tracks = self.model.get_top_tracks(self.selected_artist.id)
-        # top_tracks_album = pd.DataFrame([track['album'] for track in top_tracks])['id']
-        #
-        # print(top_tracks_album['id'])
-        # print(self.selected_artist.album)
-        #
-        # album = self.selected_artist.album.assign(
-        #     top_track_count=lambda x: top_tracks_album.loc[top_tracks_album.id == x.album_id].count().values
-        # )
-        #
-        # print(album)
+
+        album_list = self.selected_artist.album.copy().set_index('album_id')['album_name']
+        print(album_list)
+
+        top_tracks = self.model.get_top_tracks(self.selected_artist.id)
+        print(top_tracks)
+        top_tracks_album_count = \
+            pd.DataFrame([track['album'] for track in top_tracks])\
+            .groupby('id').count()\
+
+        print(album_list)
+
+        top_tracks_album_count['album_name'] = [album_list.loc[album_id] for album_id in top_tracks_album_count.index]
+        top_tracks_album_count.rename(columns={'album_type': 'count'}, inplace=True)
+
+        ax = self.ui.data.ax4
+
+        ax.pie(
+            top_tracks_album_count['count'],
+            autopct=lambda pct: int(pct/10),
+            # labels=top_tracks_album_count['album_name']
+        )
+
+        ax.legend(
+            title='Albums',
+            labels=top_tracks_album_count['album_name'],
+            loc='lower center',
+            bbox_to_anchor=(0, -0.25),
+            fontsize='xx-small'
+        )
+
+        ax.set_title('Number of track in artist\ntop 10 from each album')
 
     def clear_graph(self):
         self.ui.data.ax1.cla()
