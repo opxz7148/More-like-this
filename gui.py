@@ -153,9 +153,7 @@ class Searching(tk.Frame):
         self.result.grid(row=1, column=0, columnspan=4, sticky='news')
         self.result['displaycolumns'] = ['name', 'genre']
         self.result.heading('name', text='Name')
-        self.result.column('name', stretch=False)
         self.result.heading('genre', text='Genres')
-        self.result.column('genre', stretch=False)
 
         # self.result.column('name')
         # self.result.column('genre')
@@ -187,13 +185,35 @@ class ArtistInfo(tk.Frame):
         super().__init__(root)
 
         self.pic = tk.Label(self, text='pic')
-        self.name = tk.Label(self, text='name')
-        self.follower = tk.Label(self, text='follower')
-        self.genre = tk.Label(self, text='genre')
-        self.similar = ttk.Treeview(
+        self.name = tk.Label(
             self,
-            columns=('artist', 'genre', 'id'),
+            text='Name',
+            font=('Ariel', 20),
+        )
+        self.follower = tk.Label(
+            self,
+            text='Follower: ',
+            font=('Ariel', 20),
+
+        )
+        self.genre = tk.Label(
+            self,
+            text='Genre: ',
+            font = ('Ariel', 15),
+
+        )
+        self.album = ttk.Treeview(
+            self,
+            columns=('album', 'album_id'),
             show='headings',
+            height=7
+        )
+        self.single = ttk.Treeview(
+            self,
+            columns=('single', 'album_id'),
+            show='headings',
+            height=7
+
         )
 
         self.init_component()
@@ -202,35 +222,36 @@ class ArtistInfo(tk.Frame):
 
         self['background'] = 'green'
 
-        bg_color = 'white'
+        bg_color = 'red'
 
         self.pic.grid(row=0, column=0, sticky='news')
-        self.pic['background'] = bg_color
+        self.pic['background'] = 'white'
 
         self.name.grid(row=1, column=0, sticky='news')
-        self.pic['background'] = bg_color
+        self.name['background'] = 'light grey'
 
         self.follower.grid(row=2, column=0, sticky='news')
-        self.follower['background'] = bg_color
+        self.follower['background'] = 'white'
 
         self.genre.grid(row=3, column=0, sticky='news')
-        self.genre['background'] = bg_color
+        self.genre['background'] = 'light grey'
 
-        # TODO implement related artist recommendation
-        self.similar.grid(row=4, column=0, sticky='ns')
-        self.similar['displaycolumns'] = ['artist', 'genre']
-        self.similar.heading('artist', text='Artist')
-        self.similar.column('artist', stretch=False)
-        self.similar.heading('genre', text='Genre')
-        self.similar.column('genre', stretch=False)
+        self.album.grid(row=4, column=0, sticky='news')
+        self.album['displaycolumns'] = ['album']
+        self.album.heading('album', text='Albums')
+
+        self.single.grid(row=5, column=0, sticky='news')
+        self.single['displaycolumns'] = ['single']
+        self.single.heading('single', text='Singles')
 
         self.columnconfigure(0, weight=1)
 
-        self.rowconfigure(0, weight=4)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=4)
+        self.rowconfigure(2, weight=4)
         self.rowconfigure(3, weight=2)
         self.rowconfigure(4, weight=4)
+        self.rowconfigure(5, weight=4)
 
 
 class Dicography(tk.Frame):
