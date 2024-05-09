@@ -15,7 +15,7 @@ More like this is an application for learn more about your favourite artist. By 
 ## How to install
 
 ### Install requirement package
-```pip install -r requirements.txt```
+```pip install -r requirement.txt```
 
 ### Get API keys
 Obtain Spotify API client ID and client secret from [This link](https://developer.spotify.com/dashboard) 
