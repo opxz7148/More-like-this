@@ -23,7 +23,6 @@ class GUI(tk.Tk):
         self.search = Searching(self)
         self.info = ArtistInfo(self)
         self.data = DataStoryTelling(self)
-        self.disco = Dicography(self)
         self.progress = ttk.Progressbar(
             self,
             orient='horizontal',
@@ -40,18 +39,15 @@ class GUI(tk.Tk):
 
         # search section arrange
         # ========================================================================================
-        self.search.grid(row=0, column=0, sticky='news')
+        self.search.grid(row=0, column=0, sticky='news', rowspan=2)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=20)
 
         self.search.search_button.bind('<Button-1>', self.search_handler)
         self.search.detail_button.bind('<Button-1>', self.artist_selected)
-        self.search.entry.bind('<Return>', self.search_handler)
+        self.search.detail_button2.bind('<Button-1>', self.artist_selected)
 
-        # Discography section arrange
-        # ========================================================================================
-        self.disco.grid(row=1, column=0, sticky='news')
-        self.grid_rowconfigure(1, weight=20)
+        self.search.entry.bind('<Return>', self.search_handler)
 
         # info section arrange
         # ========================================================================================
@@ -76,9 +72,7 @@ class GUI(tk.Tk):
         print('Search press')
         self.controller.search(self.search.query.get())
 
-    def artist_selected(self, *args):
-
-        print('Selected')
+    def artist_selected(self, event, *args):
 
         def thread_check(running_thread: Thread, progress_bar: ttk.Progressbar):
 
@@ -87,8 +81,17 @@ class GUI(tk.Tk):
             else:
                 self.finish_progress()
                 self.controller.show_data_analyze()
+                self.search.enable_detail_button()
 
-        result_tree = self.search.result
+        self.search.disable_detail_button()
+        self.search.disable_relate_detail_button()
+
+        caller = event.widget
+
+        if caller['text'] == 'Show detail':
+            result_tree = self.search.result
+        else:
+            result_tree = self.search.relate
 
         try:
             selected_artist = result_tree.item(result_tree.selection()[0])['values']
@@ -129,6 +132,13 @@ class Searching(tk.Frame):
             show='headings'
         )
 
+        # Tree view for showing relate artist
+        self.relate = ttk.Treeview(
+            self,
+            columns=('name', 'genre', 'id'),
+            show='headings'
+        )
+
         # Search entry
         self.entry = ttk.Entry(self, textvariable=self.query)
 
@@ -137,6 +147,10 @@ class Searching(tk.Frame):
 
         # Show detail button
         self.detail_button = tk.Button(self, text='Show detail')
+
+        # Show detail button
+        self.detail_button2 = tk.Button(self, text='Show relate artist detail')
+
 
         self.init_component()
 
@@ -155,17 +169,36 @@ class Searching(tk.Frame):
         self.result.heading('name', text='Name')
         self.result.heading('genre', text='Genres')
 
-        # self.result.column('name')
-        # self.result.column('genre')
+        tk.Label(self, text="Related Artist", font=('Ariel', 15)).grid(row=2, column=0, sticky='news')
+        self.detail_button2.grid(row=2, column=3, sticky='news')
+        self.detail_button2['state'] = tk.DISABLED
+
+
+        self.relate.grid(row=3, column=0, columnspan=4, sticky='news')
+        self.relate['displaycolumns'] = ['name', 'genre']
+        self.relate.heading('name', text='Name')
+        self.relate.heading('genre', text='Genres')
+
         self.result.bind('<<TreeviewSelect>>', self.enable_detail_button)
+        self.relate.bind('<<TreeviewSelect>>', self.enable_relate_detail_button)
+
 
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=10)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=10)
+
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
         self.grid_columnconfigure(3, weight=1)
+
+    def disable_relate_detail_button(self, *args):
+        self.detail_button2['state'] = tk.DISABLED
+
+    def enable_relate_detail_button(self, *args):
+        self.detail_button2['state'] = tk.NORMAL
 
     def disable_detail_button(self, *args):
         self.detail_button['state'] = tk.DISABLED
@@ -176,6 +209,10 @@ class Searching(tk.Frame):
     def clear_result(self):
         self.disable_detail_button()
         self.result.delete(*self.result.get_children())
+
+    def clear_relate(self):
+        self.disable_detail_button()
+        self.relate.delete(*self.relate.get_children())
 
 
 class ArtistInfo(tk.Frame):
@@ -199,7 +236,7 @@ class ArtistInfo(tk.Frame):
         self.genre = tk.Label(
             self,
             text='Genre: ',
-            font = ('Ariel', 15),
+            font=('Ariel', 15),
 
         )
         self.album = ttk.Treeview(
@@ -250,26 +287,6 @@ class ArtistInfo(tk.Frame):
 
     def clear_disco(self):
         self.album.delete(*self.album.get_children())
-
-
-
-
-class Dicography(tk.Frame):
-    """Class contain component relate to discography list"""
-    #TODO
-    def __init__(self, root):
-        super().__init__(root)
-
-        self.init_component()
-
-    def init_component(self):
-        self['background'] = 'green'
-
-        la = tk.Label(self, text='Disco')
-        la.grid(row=0, column=0, sticky='news')
-
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
 
 
 class DataStoryTelling(tk.Frame):

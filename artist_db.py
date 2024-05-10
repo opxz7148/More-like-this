@@ -266,6 +266,10 @@ class ArtistDb:
         except spotipy.SpotifyException:
             return None
 
+    def get_related_artist(self, artist_id):
+        relate = self._sp.artist_related_artists(artist_id)['artists']
+        return [(artist['name'], artist['genres'], artist['id']) for artist in relate]
+
 
 class SelectedArtist:
     """

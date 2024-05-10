@@ -50,13 +50,10 @@ class Controller:
         :param artist_id: spotify artist id
         """
 
-        self.ui.search.disable_detail_button()
-
         self.selected_artist = self.model.get_selected_artist(artist_id)
 
         self.show_info()
 
-        self.ui.search.enable_detail_button()
 
     def show_info(self):
         """
@@ -77,6 +74,7 @@ class Controller:
             wraplength=250
         )
         self.show_disco()
+        self.show_relate_artist()
 
     def show_disco(self):
         all_album = self.selected_artist.album.loc[self.selected_artist.album['type'] == 'album']
@@ -107,6 +105,19 @@ class Controller:
                     ],
                     tags=('track',)
                 )
+
+    def show_relate_artist(self):
+
+        related = self.model.get_related_artist(self.selected_artist.id)
+
+        self.ui.search.clear_relate()
+
+        for index in range(len(related)):
+            self.ui.search.relate.insert(
+                '',
+                index,
+                values=(related[index][0], ", ".join(related[index][1]), related[index][2])
+            )
 
     def get_img(self, url):
 
