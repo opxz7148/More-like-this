@@ -8,6 +8,8 @@ from PIL import ImageTk, Image
 import urllib.request
 import io
 import numpy as np
+from textwrap import wrap
+import tkinter as tk
 
 
 class Controller:
@@ -70,8 +72,41 @@ class Controller:
         self.ui.info.pic['image'] = self.showing_image
         self.ui.info.name['text'] = self.selected_artist.artist_name
         self.ui.info.follower['text'] = f"Followers: {self.selected_artist.no_follow}"
+        self.ui.info.genre['text'] = self.selected_artist.genres.replace('[', '').replace(']', '').replace("'", '')
+        self.ui.info.genre.configure(
+            wraplength=250
+        )
+        self.show_disco()
 
-        print(type(self.selected_artist.genres))
+    def show_disco(self):
+        all_album = self.selected_artist.album.loc[self.selected_artist.album['type'] == 'album']
+
+        self.ui.info.clear_disco()
+
+        self.ui.info.album.tag_configure('track', background='light grey')
+
+        for i in range(len(all_album)):
+            album_iid = self.ui.info.album.insert(
+                "",
+                tk.END,
+                values=[
+                    all_album.iloc[i]['album_name'],
+                    all_album.iloc[i]['album_id']
+                ]
+            )
+
+            track_in_album = self.selected_artist.track.loc[self.selected_artist.track['album_id'] == all_album.iloc[i]['album_id']]
+
+            for j in range(len(track_in_album)):
+                track_iid = self.ui.info.album.insert(
+                    album_iid,
+                    tk.END,
+                    values=[
+                        "   " + track_in_album.iloc[j]['track_name'],
+                        track_in_album.iloc[j]['track_id'],
+                    ],
+                    tags=('track',)
+                )
 
     def get_img(self, url):
 
@@ -95,8 +130,6 @@ class Controller:
 
     def show_data_analyze(self):
 
-        print('show data')
-
         if not self.selected_artist:
             return
 
@@ -106,6 +139,7 @@ class Controller:
         self.scatter()
         self.bar_graph()
         self.pie_chart()
+
         self.ui.data.canvas.draw()
 
     def histogram(self):
@@ -150,17 +184,28 @@ class Controller:
     def pie_chart(self):
 
         album_list = self.selected_artist.album.copy().set_index('album_id')['album_name']
-        print(album_list)
 
         top_tracks = self.model.get_top_tracks(self.selected_artist.id)
-        print(top_tracks)
-        top_tracks_album_count = \
-            pd.DataFrame([track['album'] for track in top_tracks])\
-            .groupby('id').count()\
 
-        print(album_list)
+        try:
+            top_tracks_album_count = \
+                pd.DataFrame([track['album'] for track in top_tracks])\
+                .groupby('id').count()\
 
-        top_tracks_album_count['album_name'] = [album_list.loc[album_id] for album_id in top_tracks_album_count.index]
+        except KeyError:
+            return
+
+        # Oliver messiaen <-- test case
+
+        top_tracks_album_count['album_name'] = [
+            album_list.loc[album_id]
+            if album_id in album_list
+            else None
+            for album_id
+            in top_tracks_album_count.index
+
+        ]
+
         top_tracks_album_count.rename(columns={'album_type': 'count'}, inplace=True)
 
         ax = self.ui.data.ax4
@@ -171,11 +216,13 @@ class Controller:
             # labels=top_tracks_album_count['album_name']
         )
 
+        labels = ["\n".join(wrap(album,20)) if album else None for album in top_tracks_album_count['album_name']]
+        # "\n".join(wrap(album,20))
         ax.legend(
             title='Albums',
-            labels=top_tracks_album_count['album_name'],
+            labels=labels,
             loc='lower center',
-            bbox_to_anchor=(0, -0.25),
+            bbox_to_anchor=(0, -0.4),
             fontsize='xx-small'
         )
 

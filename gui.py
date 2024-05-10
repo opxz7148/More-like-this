@@ -240,18 +240,18 @@ class ArtistInfo(tk.Frame):
         self.album['displaycolumns'] = ['album']
         self.album.heading('album', text='Albums')
 
-        self.single.grid(row=5, column=0, sticky='news')
-        self.single['displaycolumns'] = ['single']
-        self.single.heading('single', text='Singles')
-
         self.columnconfigure(0, weight=1)
 
         self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=4)
-        self.rowconfigure(2, weight=4)
-        self.rowconfigure(3, weight=2)
+        self.rowconfigure(1, weight=2)
+        self.rowconfigure(2, weight=2)
+        self.rowconfigure(3, weight=1)
         self.rowconfigure(4, weight=4)
-        self.rowconfigure(5, weight=4)
+
+    def clear_disco(self):
+        self.album.delete(*self.album.get_children())
+
+
 
 
 class Dicography(tk.Frame):

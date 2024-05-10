@@ -160,17 +160,15 @@ class ArtistDb:
             'img_url': img_url,
             'external_url': artist_detail['external_urls']['spotify'],
         }
-        artist_album = self._sp.artist_albums(artist_id, album_type='album')['items']
+        artist_album = self._sp.artist_albums(artist_id, album_type='album', country='TH')['items']
         album_list = [album['id'] for album in artist_album]
 
-        artist_single = self._sp.artist_albums(artist_id, album_type='single')['items']
+        artist_single = self._sp.artist_albums(artist_id, album_type='single', country='TH')['items']
         album_list += [album['id'] for album in artist_single]
 
-        self.__add_album(album_list)
+        self.__add_album(album_list, artist_id)
 
-    def __add_album(self, album_list):
-
-        len(album_list)
+    def __add_album(self, album_list, artist_id):
 
         def add_album(album_id_list):
 
@@ -191,7 +189,7 @@ class ArtistDb:
                 release_date = np.datetime64(album_detail['release_date'], "D")
 
                 self._album.loc[len(self._album)] = {
-                    'artist_id': album_detail['artists'][0]['id'],
+                    'artist_id': artist_id,
                     'external_url': album_detail['external_urls']['spotify'],
                     'img_url': img_url,
                     'album_name': album_detail['name'],
@@ -205,7 +203,7 @@ class ArtistDb:
 
                 track_list += [track['id'] for track in album_detail['tracks']['items']]
 
-            self.__add_track(track_list)
+            self.__add_track(track_list, artist_id)
 
         album_id = album_list
 
@@ -217,7 +215,7 @@ class ArtistDb:
 
         add_album(album_id)
 
-    def __add_track(self, track_list):
+    def __add_track(self, track_list, artist_id):
 
         def add_track(track_id_list):
 
@@ -226,7 +224,7 @@ class ArtistDb:
             for track_detail in all_track:
 
                 self._track.loc[len(self._track)] = {
-                    'artist_id': track_detail['artists'][0]['id'],
+                    'artist_id': artist_id,
                     'album_id': track_detail['album']['id'],
                     'track_id': track_detail['id'],
                     'track_name': track_detail['name'],
@@ -288,7 +286,7 @@ class SelectedArtist:
 
         self.artist_name = artist.iloc[0, 0]
         self.id = artist.iloc[0, 1]
-        self.genres = artist.iloc[0, 2]
+        self.genres = str(artist.iloc[0, 2])
         self.no_follow = artist.iloc[0, 3]
         self.popularity = artist.iloc[0, 4]
         self.img_url = artist.iloc[0, 5]
