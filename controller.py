@@ -53,7 +53,7 @@ class Controller:
         self.selected_artist = self.model.get_selected_artist(artist_id)
 
         self.show_info()
-
+        self.show_data_analyze()
 
     def show_info(self):
         """
@@ -68,7 +68,7 @@ class Controller:
 
         self.ui.info.pic['image'] = self.showing_image
         self.ui.info.name['text'] = self.selected_artist.artist_name
-        self.ui.info.follower['text'] = f"Followers: {self.selected_artist.no_follow}"
+        self.ui.info.follower['text'] = f"Followers: {self.selected_artist.no_follow:,}"
         self.ui.info.genre['text'] = self.selected_artist.genres.replace('[', '').replace(']', '').replace("'", '')
         self.ui.info.genre.configure(
             wraplength=250
@@ -146,12 +146,25 @@ class Controller:
 
         self.clear_graph()
 
+        self.add_statistics()
+
         self.histogram()
         self.scatter()
         self.bar_graph()
         self.pie_chart()
 
         self.ui.data.canvas.draw()
+
+    def add_statistics(self):
+
+        if len(self.selected_artist.album) > 0:
+            self.ui.data.add_pop_track(self.selected_artist.track.sort_values('popularity', ascending=False).iloc[0, 3])
+
+        self.ui.data.add_no_album(len(self.selected_artist.album))
+        self.ui.data.add_mean(self.selected_artist.track['popularity'].mean())
+        self.ui.data.add_sd(self.selected_artist.track['popularity'].std())
+        self.ui.data.add_median(self.selected_artist.track['popularity'].median())
+        self.ui.data.add_corr(self.selected_artist.track.loc[:, ['popularity', 'duration_ms']].corr().loc['popularity', 'duration_ms'])
 
     def histogram(self):
 
@@ -191,6 +204,8 @@ class Controller:
             height=release_date_sorted['popularity']
         )
         ax.tick_params(axis='x', labelrotation=90)
+
+        ax.set_title('Discography populartiy \nsort by release date')
 
     def pie_chart(self):
 

@@ -2,7 +2,6 @@
 View part of MVC design pattern
 Take responsibility about rendering GUI
 """
-import time
 import tkinter as tk
 from tkinter import ttk
 from controller import Controller
@@ -36,6 +35,8 @@ class GUI(tk.Tk):
 
     def init_component(self):
         """Arrange component"""
+
+        self.title('More like this')
 
         # search section arrange
         # ========================================================================================
@@ -80,7 +81,6 @@ class GUI(tk.Tk):
                 self.after(10, lambda: thread_check(thread, progress_bar))
             else:
                 self.finish_progress()
-                self.controller.show_data_analyze()
                 self.search.enable_detail_button()
 
         self.search.disable_detail_button()
@@ -96,6 +96,7 @@ class GUI(tk.Tk):
         try:
             selected_artist = result_tree.item(result_tree.selection()[0])['values']
         except IndexError:
+            self.search.enable_relate_detail_button()
             return
 
         self.show_progress()
@@ -106,10 +107,6 @@ class GUI(tk.Tk):
         thread.start()
 
         thread_check(thread, self.progress)
-
-    def show_analyze(self, *args):
-        print('Show analyze')
-        self.controller.show_data_analyze()
 
     def run(self):
         self.mainloop()
@@ -299,6 +296,8 @@ class DataStoryTelling(tk.Frame):
         self.ax2 = None
         self.ax3 = None
         self.ax4 = None
+        self.no_album = tk.Label(self, text='Number of single & album: ', anchor=tk.W)
+        self.pop_track = tk.Label(self, text='Most popular track: ', anchor=tk.W)
         self.mean = tk.Label(self, text='Mean: ', anchor=tk.W)
         self.sd = tk.Label(self, text='Standard Deviation: ', anchor=tk.W)
         self.median = tk.Label(self, text='Median: ', anchor=tk.W)
@@ -310,8 +309,14 @@ class DataStoryTelling(tk.Frame):
 
         self.configure(background='red')
 
-        label = tk.Label(self, text='Artist popularity analytic: ')
-        label.grid(row=0, column=0, sticky='news', columnspan=4)
+        tk.Label(
+            self,
+            text="Artist's \npopularity \nanalytic: ",
+            font=('Ariel', 15)
+        ).grid(row=0, column=0, sticky='news')
+
+        self.no_album.grid(row=0, column=3, sticky='news')
+        self.pop_track.grid(row=0, column=1, columnspan=2, sticky='news')
 
         self.rowconfigure(0, weight=5)
 
@@ -341,4 +346,20 @@ class DataStoryTelling(tk.Frame):
 
         self.rowconfigure(2, weight=20)
 
+    def add_pop_track(self, track):
+        self.pop_track['text'] = f'Most popular track: {track}'
 
+    def add_no_album(self, no):
+        self.no_album['text'] = f'Number of single & album: {no}'
+
+    def add_mean(self, mean):
+        self.mean['text'] = f'Mean: {mean:.2f}'
+
+    def add_sd(self, sd):
+        self.sd['text'] = f'Standard Deviation: {sd:.2f}'
+
+    def add_median(self, med):
+        self.median['text'] = f'Median: {med}'
+
+    def add_corr(self, corr):
+        self.corr['text'] = f'Correlation with duration: {corr:.2f}'
