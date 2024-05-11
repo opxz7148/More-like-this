@@ -228,7 +228,7 @@ class Searching(tk.Frame):
         """
         self.detail_button2['state'] = tk.DISABLED
 
-    def enable_relate_detail_button(self, *args):
+    def _(self, *args):
         """
         Enable relate artist detail button
         """
@@ -296,13 +296,6 @@ class ArtistInfo(tk.Frame):
             columns=('album', 'album_id'),
             show='headings',
             height=7
-        )
-        self.single = ttk.Treeview(
-            self,
-            columns=('single', 'album_id'),
-            show='headings',
-            height=7
-
         )
 
         self.init_component()
@@ -452,7 +445,7 @@ class DataStoryTelling(tk.Frame):
         """
         self.median['text'] = f'Median: {med}'
 
-    def add_corr(self, corr):
+    def add_corr(self, corr: float):
         """
         Change correlation in corr label
         :param corr: Float value of correlation
