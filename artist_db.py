@@ -9,7 +9,8 @@ import pandas as pd
 
 class ArtistDb:
     """
-    Class for working with artist discography data csv file by utilizing pandas dataframe and spotipy library
+    Class for working with artist discography data csv file
+    by utilizing pandas dataframe and spotipy library
     """
 
     def __init__(
@@ -26,7 +27,6 @@ class ArtistDb:
         :param album_csv_file_name: Name of csv file that contain data about each album.
         :param track_csv_file_name: Name of csv file that contain data about each track.
         """
-        pass
 
         self._sp = sp
         self._artist = pd.read_csv(artist_csv_filename)
@@ -129,6 +129,11 @@ class ArtistDb:
         )
 
     def search(self, query):
+        """
+        Search artist name by use query as a keyword
+        :param query: Search keyword
+        :return: List of tuple of artist name, genre, id
+        """
 
         result = self._sp.search(
             query,
@@ -140,6 +145,10 @@ class ArtistDb:
         return [(artist['name'], artist['genres'], artist['id']) for artist in result]
 
     def add_artist(self, artist_id):
+        """
+        Add artist to dataframe
+        :param artist_id: Spotify artist ID
+        """
 
         if artist_id in self._artist['artist_id'].values:
             return
@@ -160,15 +169,28 @@ class ArtistDb:
             'img_url': img_url,
             'external_url': artist_detail['external_urls']['spotify'],
         }
-        artist_album = self._sp.artist_albums(artist_id, album_type='album', country='TH')['items']
+        artist_album = self._sp.artist_albums(
+            artist_id,
+            album_type='album',
+            country='TH'
+        )['items']
         album_list = [album['id'] for album in artist_album]
 
-        artist_single = self._sp.artist_albums(artist_id, album_type='single', country='TH')['items']
+        artist_single = self._sp.artist_albums(
+            artist_id,
+            album_type='single',
+            country='TH'
+        )['items']
         album_list += [album['id'] for album in artist_single]
 
         self.__add_album(album_list, artist_id)
 
     def __add_album(self, album_list, artist_id):
+        """
+        Add album to dataframe
+        :param album_list: List of spotify album id
+        :param artist_id: Spotify artist id
+        """
 
         def add_album(album_id_list):
 
@@ -216,6 +238,11 @@ class ArtistDb:
         add_album(album_id)
 
     def __add_track(self, track_list, artist_id):
+        """
+        Add track to dataframe
+        :param track_list: List of spotify track id
+        :param artist_id: Spotify artist id
+        """
 
         def add_track(track_id_list):
 
@@ -244,11 +271,19 @@ class ArtistDb:
         add_track(track_id)
 
     def update_csv(self):
+        """
+        Update csv file
+        """
         self._artist.to_csv('csv/artist.csv', index=False)
         self._album.to_csv('csv/album.csv', index=False)
         self._track.to_csv('csv/track.csv', index=False)
 
     def get_selected_artist(self, artist_id):
+        """
+        Return Selected artist object
+        :param artist_id: Spotify artist_id
+        :return: Selected artist object with selected artist information
+        """
 
         if artist_id not in self._artist['artist_id'].values:
             self.add_artist(artist_id)
@@ -260,13 +295,22 @@ class ArtistDb:
         return SelectedArtist(artist_df, album_df, track_df)
 
     def get_top_tracks(self, artist_id):
-
+        """
+        Return list of artist top 10 track
+        :param artist_id: Spotify artist ID
+        :return: list of artist top 10 track
+        """
         try:
             return self._sp.artist_top_tracks(artist_id, country='TH')['tracks']
         except spotipy.SpotifyException:
             return None
 
     def get_related_artist(self, artist_id):
+        """
+        Return list of artist's relate artist
+        :param artist_id: Spotify artist ID
+        :return: list of artist's relate artist
+        """
         relate = self._sp.artist_related_artists(artist_id)['artists']
         return [(artist['name'], artist['genres'], artist['id']) for artist in relate]
 

@@ -1,15 +1,13 @@
 """
 Controller part of design pattern
 """
-import pandas as pd
-
-from artist_db import ArtistDb
-from PIL import ImageTk, Image
+import tkinter as tk
+from textwrap import wrap
 import urllib.request
 import io
-import numpy as np
-from textwrap import wrap
-import tkinter as tk
+import pandas as pd
+from PIL import ImageTk, Image
+from artist_db import ArtistDb
 
 
 class Controller:
@@ -17,7 +15,7 @@ class Controller:
     Class responsible for controlling gui
     """
 
-    def __init__(self, ui: 'GUI', model: 'ArtistDb'):
+    def __init__(self, ui, model: 'ArtistDb'):
         self.ui = ui
         self.model = model
         self.selected_artist = None
@@ -28,15 +26,22 @@ class Controller:
 
         self.ui.info.pic['image'] = self.showing_image
 
-    def search(self, query):
+    def search(self, query: str):
+        """
+        Send search request to database
+        :param query: Search keyword
+        """
 
+        # Check does query is not a blank string
         if not query:
             return
 
         result = self.model.search(query)
 
+        # Clear recent result
         self.ui.search.clear_result()
 
+        # Load search result into result treeview
         for index in range(len(result)):
             self.ui.search.result.insert(
                 '',
@@ -61,28 +66,45 @@ class Controller:
         :return:
         """
 
+        # Get artist image from URL
         try:
             self.showing_image = self.get_img(self.selected_artist.img_url)
         except ValueError:
             self.showing_image = self.blank_img
 
+        # Display image and information on GUI
         self.ui.info.pic['image'] = self.showing_image
         self.ui.info.name['text'] = self.selected_artist.artist_name
         self.ui.info.follower['text'] = f"Followers: {self.selected_artist.no_follow:,}"
-        self.ui.info.genre['text'] = self.selected_artist.genres.replace('[', '').replace(']', '').replace("'", '')
+
+        self.ui.info.genre['text'] = self.selected_artist\
+            .genres\
+            .replace('[', '')\
+            .replace(']', '')\
+            .replace("'", '')
+
         self.ui.info.genre.configure(
             wraplength=250
         )
+
+        # Show discography and relate artist detail
         self.show_disco()
         self.show_relate_artist()
 
     def show_disco(self):
+        """
+        Show selected artist discography
+        """
+
+        # Get all album from selected artist
         all_album = self.selected_artist.album.loc[self.selected_artist.album['type'] == 'album']
 
+        # Clear discography treeview
         self.ui.info.clear_disco()
 
         self.ui.info.album.tag_configure('track', background='light grey')
 
+        # Load every album into treeview
         for i in range(len(all_album)):
             album_iid = self.ui.info.album.insert(
                 "",
@@ -93,10 +115,14 @@ class Controller:
                 ]
             )
 
-            track_in_album = self.selected_artist.track.loc[self.selected_artist.track['album_id'] == all_album.iloc[i]['album_id']]
+            # Get every track in album
+            track_in_album = self.selected_artist.track.loc[
+                self.selected_artist.track['album_id'] == all_album.iloc[i]['album_id']
+                ]
 
+            # Load all track in to treeview
             for j in range(len(track_in_album)):
-                track_iid = self.ui.info.album.insert(
+                self.ui.info.album.insert(
                     album_iid,
                     tk.END,
                     values=[
@@ -107,11 +133,17 @@ class Controller:
                 )
 
     def show_relate_artist(self):
+        """
+        Show selected artist's related artist
+        """
 
+        # Get all related artist
         related = self.model.get_related_artist(self.selected_artist.id)
 
+        # Clear related artist treeview
         self.ui.search.clear_relate()
 
+        # Load all related artist
         for index in range(len(related)):
             self.ui.search.relate.insert(
                 '',
@@ -122,7 +154,7 @@ class Controller:
     def get_img(self, url):
 
         """
-        Get image from url
+        Generate ImageTk object from url.
         :param url: Image url
         :return ImakeTk from url:
         """
@@ -140,14 +172,20 @@ class Controller:
         return photo
 
     def show_data_analyze(self):
+        """
+        Show statistics about artist track
+        """
 
         if not self.selected_artist:
             return
 
+        # Clear all graph
         self.clear_graph()
 
+        # Show popularity statistics
         self.add_statistics()
 
+        # Show every graph
         self.histogram()
         self.scatter()
         self.bar_graph()
@@ -156,17 +194,32 @@ class Controller:
         self.ui.data.canvas.draw()
 
     def add_statistics(self):
+        """
+        Show artist track statistics
+        """
 
+        # Get most popular track
         if len(self.selected_artist.album) > 0:
-            self.ui.data.add_pop_track(self.selected_artist.track.sort_values('popularity', ascending=False).iloc[0, 3])
+            self.ui.data.add_pop_track(
+                self.selected_artist.track.sort_values(
+                    'popularity', ascending=False
+                ).iloc[0, 3]
+            )
 
+        # Add each statistics value
         self.ui.data.add_no_album(len(self.selected_artist.album))
         self.ui.data.add_mean(self.selected_artist.track['popularity'].mean())
         self.ui.data.add_sd(self.selected_artist.track['popularity'].std())
         self.ui.data.add_median(self.selected_artist.track['popularity'].median())
-        self.ui.data.add_corr(self.selected_artist.track.loc[:, ['popularity', 'duration_ms']].corr().loc['popularity', 'duration_ms'])
+
+        self.ui.data.add_corr(
+            self.selected_artist.track.loc[:, ['popularity', 'duration_ms']].corr().loc['popularity', 'duration_ms']
+        )
 
     def histogram(self):
+        """
+        Show histogram of track popularity distribution
+        """
 
         track_pop = self.selected_artist.track['popularity']
 
@@ -181,6 +234,9 @@ class Controller:
         ax.set_xlabel('Popularity(1 - 100)')
 
     def scatter(self):
+        """
+        Show scatter chart of correlation between track popularity and track duration
+        """
 
         track_pop = self.selected_artist.track['popularity']
         track_duration = self.selected_artist.track['duration_ms']
@@ -196,6 +252,10 @@ class Controller:
         ax.set_xlabel('Popularity(1 - 100)')
 
     def bar_graph(self):
+        """
+        Show bar chart of each album popularity
+        """
+
         release_date_sorted = self.selected_artist.album.sort_values('release_date')
 
         ax = self.ui.data.ax3
@@ -208,6 +268,9 @@ class Controller:
         ax.set_title('Discography populartiy \nsort by release date')
 
     def pie_chart(self):
+        """
+        Show pie chart of ratio of top track from each album
+        """
 
         album_list = self.selected_artist.album.copy().set_index('album_id')['album_name']
 
@@ -242,7 +305,14 @@ class Controller:
             # labels=top_tracks_album_count['album_name']
         )
 
-        labels = ["\n".join(wrap(album,20)) if album else None for album in top_tracks_album_count['album_name']]
+        labels = [
+            "\n".join(
+                wrap(album, 20)
+            )
+            if album
+            else None
+            for album in top_tracks_album_count['album_name']
+        ]
         # "\n".join(wrap(album,20))
         ax.legend(
             title='Albums',
@@ -255,11 +325,10 @@ class Controller:
         ax.set_title('Number of track in artist\ntop 10 from each album')
 
     def clear_graph(self):
+        """
+        Clear all graph axes
+        """
         self.ui.data.ax1.cla()
         self.ui.data.ax2.cla()
         self.ui.data.ax3.cla()
         self.ui.data.ax4.cla()
-
-
-
-

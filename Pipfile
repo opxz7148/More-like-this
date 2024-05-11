@@ -9,6 +9,8 @@ pandas = "*"
 python-dotenv = "*"
 matplotlib = "*"
 pillow = "*"
+pyline = "*"
+pylint = "*"
 
 [dev-packages]
 

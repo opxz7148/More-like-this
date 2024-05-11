@@ -4,12 +4,13 @@ Take responsibility about rendering GUI
 """
 import tkinter as tk
 from tkinter import ttk
-from controller import Controller
 from threading import Thread
 import matplotlib
-matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from controller import Controller
+
+matplotlib.use("TkAgg")
 
 
 class GUI(tk.Tk):
@@ -31,6 +32,10 @@ class GUI(tk.Tk):
         self.init_component()
 
     def set_controller(self, controller: 'Controller'):
+        """
+        Set GUI controller
+        :param controller: Controller class object
+        """
         self.controller = controller
 
     def init_component(self):
@@ -61,33 +66,50 @@ class GUI(tk.Tk):
         self.grid_columnconfigure(2, weight=2)
 
     def show_progress(self):
+        """Start progress bar"""
         self.progress.grid(row=2, column=0, columnspan=2, sticky='news')
         self.rowconfigure(2, weight=1)
         self.progress.start(10)
 
     def finish_progress(self):
+        """
+        Stop progress bar
+        """
         self.progress.grid_forget()
         self.progress.stop()
 
     def search_handler(self, *args):
-        print('Search press')
+        """
+        Event handler when search button got press
+        :param args:
+        :return:
+        """
         self.controller.search(self.search.query.get())
 
     def artist_selected(self, event, *args):
+        """
+        Event handler when show both show detail button got press
+        """
 
-        def thread_check(running_thread: Thread, progress_bar: ttk.Progressbar):
+        def thread_check(running_thread: Thread):
+
+            """
+            Checking that is thread is still running if not stop the progress bar
+            """
 
             if running_thread.is_alive():
-                self.after(10, lambda: thread_check(thread, progress_bar))
+                self.after(10, lambda: thread_check(thread))
             else:
                 self.finish_progress()
-                self.search.enable_detail_button()
 
+        # Disabled both button
         self.search.disable_detail_button()
         self.search.disable_relate_detail_button()
 
+        # Get a event widget
         caller = event.widget
 
+        # Determine which treeview to extract data from
         if caller['text'] == 'Show detail':
             result_tree = self.search.result
         else:
@@ -99,16 +121,20 @@ class GUI(tk.Tk):
             self.search.enable_relate_detail_button()
             return
 
-        self.show_progress()
-
         print(selected_artist)
+
+        self.show_progress()
 
         thread = Thread(target=lambda: self.controller.select_artist(selected_artist[2]))
         thread.start()
 
-        thread_check(thread, self.progress)
+        thread_check(thread)
+        self.search.enable_detail_button()
 
     def run(self):
+        """
+        Run GUI mainloop
+        """
         self.mainloop()
 
 
@@ -116,6 +142,10 @@ class Searching(tk.Frame):
     """Class contain component relate to searching"""
 
     def __init__(self, root):
+        """
+        Searching part constructor
+        :param root: Master component
+        """
 
         super().__init__(root)
 
@@ -148,7 +178,6 @@ class Searching(tk.Frame):
         # Show detail button
         self.detail_button2 = tk.Button(self, text='Show relate artist detail')
 
-
         self.init_component()
 
     def init_component(self):
@@ -166,10 +195,14 @@ class Searching(tk.Frame):
         self.result.heading('name', text='Name')
         self.result.heading('genre', text='Genres')
 
-        tk.Label(self, text="Related Artist", font=('Ariel', 15)).grid(row=2, column=0, sticky='news')
+        tk.Label(
+            self,
+            text="Related Artist",
+            font=('Ariel', 15)
+        ).grid(row=2, column=0, sticky='news')
+
         self.detail_button2.grid(row=2, column=3, sticky='news')
         self.detail_button2['state'] = tk.DISABLED
-
 
         self.relate.grid(row=3, column=0, columnspan=4, sticky='news')
         self.relate['displaycolumns'] = ['name', 'genre']
@@ -179,12 +212,10 @@ class Searching(tk.Frame):
         self.result.bind('<<TreeviewSelect>>', self.enable_detail_button)
         self.relate.bind('<<TreeviewSelect>>', self.enable_relate_detail_button)
 
-
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=10)
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=10)
-
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -192,22 +223,41 @@ class Searching(tk.Frame):
         self.grid_columnconfigure(3, weight=1)
 
     def disable_relate_detail_button(self, *args):
+        """
+        Disable relate artist detail button
+        """
         self.detail_button2['state'] = tk.DISABLED
 
     def enable_relate_detail_button(self, *args):
+        """
+        Enable relate artist detail button
+        """
         self.detail_button2['state'] = tk.NORMAL
 
     def disable_detail_button(self, *args):
+        """
+        Disable detail button
+        """
         self.detail_button['state'] = tk.DISABLED
 
     def enable_detail_button(self, *args):
+        """
+        Enable detail button
+        """
         self.detail_button['state'] = tk.NORMAL
 
     def clear_result(self):
+        """
+        Clear result treeview
+        """
         self.disable_detail_button()
         self.result.delete(*self.result.get_children())
 
     def clear_relate(self):
+        """
+        Clear relate artist treeview
+        :return:
+        """
         self.disable_detail_button()
         self.relate.delete(*self.relate.get_children())
 
@@ -216,8 +266,13 @@ class ArtistInfo(tk.Frame):
     """Class contain component relate to artist information"""
 
     def __init__(self, root):
+        """
+        Artist info section constructor
+        :param root: Master component
+        """
         super().__init__(root)
 
+        # Create necessary component in artist info section
         self.pic = tk.Label(self, text='pic')
         self.name = tk.Label(
             self,
@@ -253,10 +308,11 @@ class ArtistInfo(tk.Frame):
         self.init_component()
 
     def init_component(self):
+        """
+        Arrange component in info section
+        """
 
         self['background'] = 'green'
-
-        bg_color = 'red'
 
         self.pic.grid(row=0, column=0, sticky='news')
         self.pic['background'] = 'white'
@@ -283,12 +339,23 @@ class ArtistInfo(tk.Frame):
         self.rowconfigure(4, weight=4)
 
     def clear_disco(self):
+        """
+        Clear discography treeview
+        """
+
         self.album.delete(*self.album.get_children())
 
 
 class DataStoryTelling(tk.Frame):
     """Class contain component relate to data storytelling"""
+
     def __init__(self, root):
+        """
+        Data storytelling section constructor
+        :param root: Master component
+        """
+
+        # Create necessary component
         super().__init__(root)
         self.canvas = None
         self.canvas_widget = None
@@ -306,6 +373,7 @@ class DataStoryTelling(tk.Frame):
         self.init_component()
 
     def init_component(self):
+        """Arrange component in datastory telling section"""
 
         self.configure(background='red')
 
@@ -327,6 +395,8 @@ class DataStoryTelling(tk.Frame):
 
         self.rowconfigure(1, weight=5)
 
+        # Laying out graph
+
         fig = Figure()
         self.ax1 = fig.add_subplot(221)
         self.ax2 = fig.add_subplot(222)
@@ -346,20 +416,45 @@ class DataStoryTelling(tk.Frame):
 
         self.rowconfigure(2, weight=20)
 
-    def add_pop_track(self, track):
+    def add_pop_track(self, track: str):
+        """
+        Change popular track label
+        :param track: String of track name
+        """
         self.pop_track['text'] = f'Most popular track: {track}'
 
-    def add_no_album(self, no):
+    def add_no_album(self, no: int):
+        """
+        Change number of album and single label
+        :param no: Integer number of single & album
+        """
         self.no_album['text'] = f'Number of single & album: {no}'
 
-    def add_mean(self, mean):
+    def add_mean(self, mean: float):
+        """
+        Change mean value in mean label
+        :param mean: Float value of mean
+        """
         self.mean['text'] = f'Mean: {mean:.2f}'
 
-    def add_sd(self, sd):
+    def add_sd(self, sd: float):
+        """
+        Change SD in sd label
+        :param sd: Float value of sd
+        :return:
+        """
         self.sd['text'] = f'Standard Deviation: {sd:.2f}'
 
-    def add_median(self, med):
+    def add_median(self, med: float):
+        """
+        Change median in median label
+        :param med: Float value of median
+        """
         self.median['text'] = f'Median: {med}'
 
     def add_corr(self, corr):
+        """
+        Change correlation in corr label
+        :param corr: Float value of correlation
+        """
         self.corr['text'] = f'Correlation with duration: {corr:.2f}'
