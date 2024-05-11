@@ -228,7 +228,7 @@ class Searching(tk.Frame):
         """
         self.detail_button2['state'] = tk.DISABLED
 
-    def _(self, *args):
+    def enable_relate_detail_button(self, *args):
         """
         Enable relate artist detail button
         """
