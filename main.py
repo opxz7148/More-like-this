@@ -5,23 +5,24 @@ from gui import GUI
 from controller import Controller
 from artist_db import ArtistDb
 
-dotenv.load_dotenv()
+if __name__ == "__main__":
+    dotenv.load_dotenv()
 
-auth_manager = SpotifyClientCredentials()
+    auth_manager = SpotifyClientCredentials()
 
-sp = ArtistDb(
-    spotipy.Spotify(auth_manager=auth_manager),
-    'csv/artist.csv',
-    'csv/album.csv',
-    'csv/track.csv'
-)
-ui = GUI()
+    sp = ArtistDb(
+        spotipy.Spotify(auth_manager=auth_manager),
+        'csv/artist.csv',
+        'csv/album.csv',
+        'csv/track.csv'
+    )
+    ui = GUI()
 
-controller = Controller(ui, sp)
+    controller = Controller(ui, sp)
 
-ui.set_controller(controller)
+    ui.set_controller(controller)
 
-ui.run()
+    ui.run()
 
-sp.update_csv()
+    sp.update_csv()
 
