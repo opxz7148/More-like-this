@@ -1,3 +1,27 @@
+# Files to NOT commit to a git repository
+__pycache__
+*.py[cod]
+.pytest_cache
+build/
+db.sqlite3
+# virtual environments
+venv/
+env/
+
+# code coverage
+.coverage
+htmlcov/
+/coverage
+.mypy_cache
+
+# IDE and MacOS files
+.idea/
+*.iml
+.project
+.pydevproject
+.vscode/
+.DS_Store
+
 *.env
 *.csv
 *.cache
